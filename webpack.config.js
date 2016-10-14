@@ -45,21 +45,41 @@ function getEntries() {
 
 				if (fs.statSync(pathDirectory).isDirectory()) {
 
-					let pathFile = `${examples_directory}/${file}/main.js`;
+					let pathFileSource = `${examples_directory}/${file}/main.js`;
+					let pathFileDestination = `${examples_directory}/${file}/bundle.js`;
+
+					let printConsole = (filename, color, label) => {
+						const lengthFile = 30;
+						let getFilename = () => {
+							let filenameTransformed = filename;
+							while (lengthFile > filenameTransformed.length) {
+								filenameTransformed += ' ';
+							}
+							return filenameTransformed;
+						};
+						console.info(`${color}${getFilename()}${colors.reset} : ${label}`);
+					};
 
 					try {
 
-						if (fs.statSync(pathFile).isFile()) {
+						if (fs.statSync(pathFileSource).isFile()) {
 
-							entries[file] = pathFile;
-							console.info(`${colors.green}${file}${colors.reset}`);
+							entries[file] = pathFileSource;
+							printConsole(file, colors.green, 'From ES6 to ES5 with babel');
 						} else {
-
-							throw(`${pathFile} is not a file.`);
+							throw(`${pathFileSource} is not a file.`);
 						}
 					} catch (err) {
 
-						console.info(`${colors.yellow}${file}${colors.reset}`);
+						try {
+							if (fs.statSync(pathFileDestination).isFile()) {
+								printConsole(file, colors.blue, 'Served directly without babel');
+							} else {
+								throw(`${pathFileDestination} is not a file.`);
+							}
+						} catch (err) {
+							printConsole(file, colors.red, 'Example missing');
+						}
 					}
 				}
 			} catch (err) {
